@@ -1,0 +1,10 @@
+
+venv/
+
+__pycache__/
+
+\.vscode/
+
+es_tpf/resources/base-nessus\.csv
+
+es_tpf/resources/base-qualys\.csv
