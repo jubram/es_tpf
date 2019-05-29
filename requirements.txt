@@ -1,0 +1,5 @@
+prettytable
+pandas
+nltk
+fuzzywuzzy
+pymongo
