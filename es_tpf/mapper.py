@@ -1,7 +1,7 @@
-from utils import Utils
-from config import DATA_DIR, DATABASE, COLLECTIONS
-from plugin import Plugin
-from database import Database as db
+from es_tpf import config
+from es_tpf.common.utils import Utils
+from es_tpf.common.database import Database as db
+from es_tpf.models.plugin import Plugin
 
 def known_matches(mapping, plugins, tool):
     print('\n=+=+= Starting Known Matches =+=+=\n')
@@ -12,7 +12,7 @@ def known_matches(mapping, plugins, tool):
 
     for i in range(len(mapping)):
 
-        p1 = Plugin.get_by_pid(COLLECTIONS[2], f'{tool}-{mapping.NID[i]}')
+        p1 = Plugin.get_by_pid(config.COLLECTIONS[2], f'{tool}-{mapping.NID[i]}')
         if not p1:
             print(f'Nessus ID not found: {mapping.NID[i]}')
             input('Type anything to continue...')
@@ -53,15 +53,15 @@ def not_matches(unique, plugins, tool):
     print('\n=+=+= Done! =+=+=\n')
     return false_negatives, true_negatives
 
-def metrics(verbose=0):
-    db.initialize(DATABASE)
+def metrics(tool1, tool2, verbose=0):
+    #db.initialize(DATABASE)
 
     # === All plugins separated by scanner === #
 
-    all_nessus = Plugin.get_by_scanner(COLLECTIONS[2], 'nessus')
-    len_all_nessus = len(all_nessus)
-    all_qualys = Plugin.get_by_scanner(COLLECTIONS[2], 'qualys')
-    len_all_qualys = len(all_qualys)
+    all1 = Plugin.get_by_scanner(config.COLLECTIONS[2], tool1)
+    len_all1 = len(all1)
+    all2 = Plugin.get_by_scanner(config.COLLECTIONS[2], tool2)
+    len_all2 = len(all2)
 
     # =+=+= END =+=+= #
 
@@ -69,23 +69,23 @@ def metrics(verbose=0):
 
     # === Known unique plugins separated by scanner === #
 
-    not_matching = Utils.open_csv('{}/not_match.csv'.format(DATA_DIR))
-    unique_nessus = []
-    unique_qualys = []
+    not_matching = Utils.open_csv(f'{config.DATA_DIR}/{config.UNMATCHING_FILE}')
+    unique1 = []
+    unique2 = []
 
     for n, q in zip(not_matching.NID, not_matching.QID):
-        unique_nessus.append(Plugin.get_by_pid(COLLECTIONS[2], 'nessus-{}'.format(n)))
-        unique_qualys.append(Plugin.get_by_pid(COLLECTIONS[2], 'qualys-{}'.format(q)))
+        unique1.append(Plugin.get_by_pid(config.COLLECTIONS[2], f'{tool1}-{n}'))
+        unique2.append(Plugin.get_by_pid(config.COLLECTIONS[2], f'{tool2}-{q}'))
 
-    len_unique_nessus = len(unique_nessus)
-    len_unique_qualys = len(unique_qualys)
+    len_unique1 = len(unique1)
+    len_unique2 = len(unique2)
 
     # =+=+= END =+=+= #
 
 
     # === Known matches === #
 
-    mapping = Utils.open_csv('{}/matches.csv'.format(DATA_DIR))
+    mapping = Utils.open_csv(f'{config.DATA_DIR}/{config.MATCHING_FILE}')
 
     # =+=+= END =+=+= #
 
@@ -99,15 +99,15 @@ def metrics(verbose=0):
 
     # Check the known matches
 
-    tp, fp = known_matches(mapping, all_qualys, 'nessus')
+    tp, fp = known_matches(mapping, all2, tool1)
     true_positives += tp
     false_positives += fp
 
-    fn, tn = not_matches(unique_nessus, all_qualys, 'nessus')
+    fn, tn = not_matches(unique1, all2, tool1)
     false_negatives += fn
     true_negatives += tn
 
-    fn, tn = not_matches(unique_qualys, all_nessus, 'qualys')
+    fn, tn = not_matches(unique2, all1, tool2)
     false_negatives += fn
     true_negatives += tn
 
