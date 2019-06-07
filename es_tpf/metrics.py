@@ -54,19 +54,14 @@ def not_matches(unique, plugins, tool):
     return false_negatives, true_negatives
 
 def metrics(tool1, tool2, verbose=0):
-    #db.initialize(DATABASE)
-
     # === All plugins separated by scanner === #
-
     all1 = Plugin.get_by_scanner(config.COLLECTIONS[2], tool1)
     len_all1 = len(all1)
     all2 = Plugin.get_by_scanner(config.COLLECTIONS[2], tool2)
     len_all2 = len(all2)
-
     # =+=+= END =+=+= #
 
     # === Known unique plugins separated by scanner === #
-
     not_matching = Utils.open_csv(f'{config.DATA_DIR}/{config.UNMATCHING_FILE}')
     unique1 = []
     unique2 = []
@@ -77,26 +72,20 @@ def metrics(tool1, tool2, verbose=0):
 
     len_unique1 = len(unique1)
     len_unique2 = len(unique2)
-
     # =+=+= END =+=+= #
 
-
     # === Known matches === #
-
     mapping = Utils.open_csv(f'{config.DATA_DIR}/{config.MATCHING_FILE}')
-
     # =+=+= END =+=+= #
 
 
     # === Start === #
-
     true_positives = 0
     false_positives = 0
     false_negatives = 0
     true_negatives = 0
 
     # Check the known matches
-
     tp, fp = known_matches(mapping, all2, tool1)
     true_positives += tp
     false_positives += fp

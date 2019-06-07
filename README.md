@@ -95,48 +95,60 @@ Como pode ser visto no exemplo acima, ambas as ferramentas possuem sua própria 
 
 #### Mapeamento de Plugins de Diferentes Fontes
 
-Para ajudar a sanar esse problema, a solução desenvolvida utiliza o processamento da linguagem natural para classificar a similaridade entre *plugins*. A princípio, apenas três atributos são utilizados para a comparação: o título do plugin, a lista de CVE IDs e as Referências externas (incluindo o BugTraq ID).
+Para ajudar a sanar esse problema, a solução desenvolvida utiliza o processamento da linguagem natural para classificar a similaridade entre *plugins*. A princípio, três atributos são utilizados para a comparação: o título do plugin, a lista de CVE IDs e as Referências externas (incluindo o BugTraq ID).
 
-A solução utiliza a linguagem de programação Python3, o banco de dados mongoDB e as bibliotecas Pandas[^pandas], NLTK[^nltk] e Fuzzywuzzy[^fz].
+A solução utiliza a linguagem de programação Python versão 3, o banco de dados MongoDB e as bibliotecas Pandas[^pandas], NLTK[^nltk] e Fuzzywuzzy[^fz].
 
 ##### Instalação
 
-Para utilizar a ferramenta, é necessário instalar as ferramentas mencionadas. A instalação das bibliotecas Python pode ser feita de forma automatizada, acessando o diretório da aplicação, com o comando:
+Para utilizar a ferramenta, é necessário instalar as ferramentas mencionadas (Python 3 e MongoDB).
+
+A instalação das bibliotecas Python pode ser feita de forma automatizada, acessando o diretório da aplicação, com o comando:
 
 ```bash
-pip3 install -r requirements.txt
+$ pip3 install -r requirements.txt
 ```
 
 ##### Utilização
 
-A ferramenta está dividida em 4 partes: `database.py`, `parser.py`, `plugin.py` e `utils.py`. Para utilizar a ferramenta, aconselha-se abrir o *prompt* Python no terminal e interagir com a ferramenta em tempo real. A interação é feita pelos comandos do módulo `Utils`, dessa forma, após acessar o *prompt* do Python, é necessário importar esse módulo:
+A ferramenta está dividida, essencialmente, em 3 partes: `metrics.py`, `parser.py` e `plugin.py`. Além disso, há os módulos auxiliares: `database.py` e `utils.py`. Na versão atual, a ferramenta irá calcular algumas métricas do conjunto de dados utilizados para os testes.
 
-```python
-from utils import Utils
+Para executar a ferramenta, basta aceder ao diretório raíz (onde encontra-se o README) e executar o comando:
+
+```shell
+$ python3 -m es_tpf
 ```
 
-###### Construção do Banco de Dados
+Ao executar o comando acima, as seguintes rotinas serão realizadas:
 
-Com o mongoDB instalado e a rodar na máquina local, e após o import do módulo `Utils`, basta rodar os comandos abaixo para construir o banco de dados:
+- Construção do Banco de Dados completo
+- Construção do Banco de Dados para teste
+- Geração das Métricas (interactivo)
 
-```python
-# Irá construir uma base com cerca de 19 mil plugins
-# verbose=True mostrará o progresso, que pode demorar um pouco
-Utils.build_db(verbose=True)
+##### Construção do Banco de Dados completo
 
-# Irá construir uma base menor para testes
-Utils.build_test_db()
-```
+Com o mongoDB instalado e a rodar na máquina local, a ferramenta irá gerar o banco de dados a partir dos ficheiros ` base-nessus-min.csv` e `base-qualys-min.csv`. Ambos encontram-se dentro do diretório `es_tpf/resources/`. Esse banco de dados possui cerca de 19 mil plugins (que foram selecionados manualmente dentre mais de 100 mil, para servir de amostragem para esse trabalho).
 
-###### Geração de Métricas
+##### Construção do Banco de Dados para teste
 
-Com a base de dados concluída, é possível gerar as métricas baseadas na Matriz de Confusão, com o seguinte comando:
+A partir desses 19 mil plugins, foram selecionados 407, dos quais 275 fazem parte do grupo de Matches ou de Not Matches, e os outros 132 são aleatórios.
 
-```python
-Utils.metrics()
-```
+##### Geração de Métricas
 
-#### Conclusão e Trabalho Futuro
+Com a base de dados concluída, é possível gerar as métricas baseadas na Matriz de Confusão. O grupo de Matches possui 141 entradas, enquanto que o grupo de Not Matches possui 134 entradas (67 para cada *scanner*, Nessus e Qualys). Ou seja, o resultado perfeito seria ter 141 Verdadeiros-Positivos e 134 Verdadeiros-Negativos.
+
+Para um uso real da ferramenta, contudo, o principal objetivo é ter o maior nível de exatidão possível com relação aos Verdadeiros-Positivos. Isso porque, para um analista ou empresa de Segurança da Informação, o que se procura é saber quais plugins de uma ferramenta correspondem a outros plugins de outra ferramenta.
+
+Os resultados ficaram:
+
+|              | Positivo | Negativo |
+| :----------: | :------: | :------: |
+| **Positivo** |   127    |    14    |
+| **Negativo** |   124    |    9     |
+
+Com isso, foi atingida uma precisão de 90%. Ou seja, a ferramenta acertou 90% dos Verdadeiros-Positivo (que é a principal métrica para esse caso concreto).
+
+**Conclusão e Trabalho Futuro**
 
 Com a realização desse trabalho, foi possível perceber um grande potencial da ferramenta para solucionar o problema identificado. Na versão atual, a ferramenta ainda apresenta algumas falhas, principalmente no tocante a *True Negatives* e *False Negatives*, o que afeta a métrica do *Recall*. Porém, foi possível vislumbrar a medida de *Precision* de 90%, o que é um resultado bastante expressivo.
 

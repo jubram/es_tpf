@@ -11,6 +11,10 @@ class Database(object):
         client = pymongo.MongoClient(Database.URI)
         Database.DATABASE = client[db_name]
         return True
+    
+    @staticmethod
+    def get_collections():
+        return Database.DATABASE.collection_names()
 
     @staticmethod
     def get_collections():

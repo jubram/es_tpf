@@ -58,6 +58,8 @@ class Utils(object):
         try:
             plugins.to_csv(filename, index=None, header=True)
             return True
+        except:
+            pass
 
     @staticmethod
     def progress(count, total, status=''):
@@ -80,18 +82,16 @@ class Utils(object):
 
     @staticmethod
     def build_db(filename1='base-nessus-min', filename2='base-qualys-min', verbose=False):
-        db.initialize(DATABASE)
-
         db.drop(COLLECTIONS[0])
         db.drop(COLLECTIONS[1])
 
-        df1 = Utils.open_csv('{}/{}.csv'.format(DATA_DIR, filename1))
+        df1 = Utils.open_csv(f'{DATA_DIR}/{filename1}.csv')
         if df1 is None:
-            print('{} not found'.format(filename1))
+            print(f'{filename1} not found')
             return False
-        df2 = Utils.open_csv('{}/{}.csv'.format(DATA_DIR, filename2))
+        df2 = Utils.open_csv(f'{DATA_DIR}/{filename2}.csv')
         if df2 is None:
-            print('{} not found'.format(filename2))
+            print(f'{filename2} not found')
             return False
 
         if verbose:
@@ -115,21 +115,20 @@ class Utils(object):
 
     @staticmethod
     def build_test_db():
-        db.initialize(DATABASE)
 
-        not_matching = Utils.open_csv('{}/not_match.csv'.format(DATA_DIR))
+        not_matching = Utils.open_csv(f'{DATA_DIR}/not_match.csv')
         for n, q in zip(not_matching.NID, not_matching.QID):
-            n = Plugin.get_by_pid(COLLECTIONS[1], 'nessus-{}'.format(n))
+            n = Plugin.get_by_pid(COLLECTIONS[1], f'nessus-{n}')
             n.save(COLLECTIONS[2])
-            q = Plugin.get_by_pid(COLLECTIONS[1], 'qualys-{}'.format(q))
+            q = Plugin.get_by_pid(COLLECTIONS[1], f'qualys-{q}')
             q.save(COLLECTIONS[2])
 
-        mapping = Utils.open_csv('{}/matches.csv'.format(DATA_DIR))
+        mapping = Utils.open_csv(f'{DATA_DIR}/matches.csv')
 
         for i in range(len(mapping)):
-            n = Plugin.get_by_pid(COLLECTIONS[1], 'nessus-{}'.format(mapping.NID[i]))
+            n = Plugin.get_by_pid(COLLECTIONS[1], f'nessus-{mapping.NID[i]}')
             n.save(COLLECTIONS[2])
-            q = Plugin.get_by_pid(COLLECTIONS[1], 'qualys-{}'.format(mapping.QID[i]))
+            q = Plugin.get_by_pid(COLLECTIONS[1], f'qualys-{mapping.QID[i]}')
             q.save(COLLECTIONS[2])
 
     @staticmethod
