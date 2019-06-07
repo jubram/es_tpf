@@ -18,7 +18,7 @@ class Utils(object):
 
     @staticmethod
     def open_csv(filename):
-        """
+        '''
             Open the CSV file containing the plugins.
 
             Input:
@@ -26,8 +26,8 @@ class Utils(object):
                               for the file
 
             Output:
-            reader -- the csv.reader object with the plugins
-        """
+            df -- the Pandas dataframe object with the plugins
+        '''
 
         if filename.split('.')[-1].lower() != 'csv':
             return False
@@ -39,6 +39,25 @@ class Utils(object):
             return df
         except IOError:
             return None
+
+    @staticmethod
+    def write_csv(filename, plugins):
+        '''
+            Write a CSV File with the plugin matches.
+
+            Input:
+            filename (str) -- the filename, with the complete path,
+                              for the file
+            plugins (df) -- the dataframe conatining the plugins
+
+            Output:
+            True -- it worked
+            False -- it didn't work
+        '''
+
+        try:
+            plugins.to_csv(filename, index=None, header=True)
+            return True
 
     @staticmethod
     def progress(count, total, status=''):

@@ -5,5 +5,4 @@ from es_tpf import mapper
 
 def run():
     db.initialize(DATABASE)
-    possible_matches = mapper.find_possible_matches('nessus-10026')
-    print(possible_matches)
+    
