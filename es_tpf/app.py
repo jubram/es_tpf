@@ -12,3 +12,7 @@ def run():
         Utils.build_test_db()
     
     metrics('nessus', 'qualys')
+
+def run_test():
+    db.initialize(DATABASE)
+    mapper.mapper()
