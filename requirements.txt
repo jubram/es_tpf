@@ -3,3 +3,4 @@ pandas
 nltk
 fuzzywuzzy
 pymongo
+tqdm
